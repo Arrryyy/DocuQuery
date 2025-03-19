@@ -1,4 +1,4 @@
 [core]
-    remote = dvcbucket
-['remote "dvcbucket"']
-    url = https://drive.google.com/drive/u/1/folders/1n5Fsw86ITyd5RvfTrJtunmXTmpnjtseR
+    remote = s3remote
+['remote "s3remote"']
+    url = s3://arrryyy/dvc-storage
