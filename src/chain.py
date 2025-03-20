@@ -38,7 +38,7 @@ def generate_answer(prompt: str) -> str:
     Generate an answer using the free LLM from Hugging Face.
     """
     # Use max_new_tokens to ensure additional tokens are generated beyond the input prompt.
-    response = generator(prompt, max_new_tokens=50, num_return_sequences=1)
+    response = generator(prompt, max_new_tokens=150, num_return_sequences=1)
     return response[0]['generated_text']
 
 def main():
