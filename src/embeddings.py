@@ -1,47 +1,52 @@
 import os
-import openai
+from pathlib import Path
+from sentence_transformers import SentenceTransformer
 
-# Retrieve your API key from the environment
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+# Load a free SBERT model
+model = SentenceTransformer('all-MiniLM-L6-v2')
 
-def get_embedding(text: str, model: str = "text-embedding-ada-002") -> list[float]:
+def get_embedding(text: str) -> list[float]:
     """
-    Generate an embedding for a single text input using OpenAI's API.
-
+    Generate an embedding for a single piece of text using Sentence Transformers.
+    
     :param text: The text to embed.
-    :param model: The embedding model to use.
     :return: A list of floats representing the embedding vector.
     """
-    response = openai.Embedding.create(
-        input=text,
-        model=model
-    )
-    # The embedding is returned in the first item of 'data'
-    return response["data"][0]["embedding"]
+    return model.encode(text).tolist()
 
-def get_embeddings(texts: list[str], model: str = "text-embedding-ada-002") -> list[list[float]]:
+def get_embeddings(texts: list[str]) -> list[list[float]]:
     """
-    Generate embeddings for a list of text inputs.
-
-    :param texts: A list of texts to embed.
-    :param model: The embedding model to use.
+    Generate embeddings for a list of texts.
+    
+    :param texts: A list of text strings.
     :return: A list of embedding vectors.
     """
-    response = openai.Embedding.create(
-        input=texts,
-        model=model
-    )
-    embeddings = [item["embedding"] for item in response["data"]]
-    return embeddings
+    return model.encode(texts).tolist()
+
+def load_chunks(chunks_dir: str) -> list[str]:
+    """
+    Load all text chunks from the specified directory.
+    
+    :param chunks_dir: Directory where chunk text files are stored.
+    :return: A list of text strings from the chunk files.
+    """
+    chunks_path = Path(chunks_dir)
+    texts = []
+    for file_path in sorted(chunks_path.glob("*.txt")):
+        with open(file_path, "r", encoding="utf-8") as f:
+            texts.append(f.read())
+    return texts
 
 if __name__ == "__main__":
-    # Example usage for a single text
-    sample_text = "Hello, world!"
-    embedding = get_embedding(sample_text)
-    print("Embedding length:", len(embedding))
-    print("First 5 elements of the embedding:", embedding[:5])
+    # Set the path to your chunks folder (should be created by the ingestion script)
+    chunks_folder = "./data/chunks"
     
-    # Example usage for multiple texts
-    sample_texts = ["Hello, world!", "This is another sentence."]
-    embeddings = get_embeddings(sample_texts)
-    print("Generated", len(embeddings), "embeddings.")
+    # Load the chunks from disk
+    texts = load_chunks(chunks_folder)
+    print(f"Loaded {len(texts)} chunks from {chunks_folder}.")
+    
+    # Generate embeddings for the chunks
+    embeddings = get_embeddings(texts)
+    print("Generated embeddings for the chunks.")
+    if embeddings:
+        print("First embedding length:", len(embeddings[0]))

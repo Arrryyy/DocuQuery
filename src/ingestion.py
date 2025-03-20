@@ -114,8 +114,29 @@ def ingest_documents(data_dir: str, chunk_size: int = 1000, chunk_overlap: int =
 
     return documents
 
+def save_chunks(documents: list[Document], chunks_dir: str) -> None:
+    """
+    Save each document chunk as a separate text file in the specified directory.
+    If the directory does not exist, it is created.
+    """
+    chunks_path = Path(chunks_dir)
+    if not chunks_path.exists():
+        chunks_path.mkdir(parents=True)
+    
+    for i, doc in enumerate(documents, start=1):
+        file_path = chunks_path / f"chunk_{i}.txt"
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(doc.page_content)
+
 # Example usage:
 if __name__ == "__main__":
-    data_directory = "./data"  # Configure your data directory here
+    data_directory = "./data"  # Set your raw data directory here
+    chunks_directory = os.path.join(data_directory, "chunks")
+    
+    # Ingest documents and produce chunks
     docs = ingest_documents(data_directory)
     print(f"Ingested {len(docs)} document chunks.")
+    
+    # Save chunks into the chunks folder
+    save_chunks(docs, chunks_directory)
+    print(f"Saved chunks to {chunks_directory}.")
