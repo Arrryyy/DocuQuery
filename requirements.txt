@@ -1,0 +1,11 @@
+langchain
+PyPDF2
+beautifulsoup4
+python-docx
+tqdm
+sentence-transformers
+scikit-learn
+numpy
+transformers
+torch
+flask
